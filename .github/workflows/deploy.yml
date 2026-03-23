@@ -1,0 +1,16 @@
+name: Production Deployment
+on:
+  push:
+    branches: [main] # why: Production environment maps to the main branch
+
+jobs:
+  check-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Type Check & Lint
+        run: npm run lint # why: ensures code quality before production
+      - name: Build
+        run: npm run build

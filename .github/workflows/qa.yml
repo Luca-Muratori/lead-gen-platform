@@ -1,0 +1,16 @@
+name: QA Deployment
+on:
+  push:
+    branches: [develop] # why: QA environment maps to the develop branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install # why: installs all packages for the monorepo
+      - name: Run Build Check
+        run: npm run build # why: prevents deployment if code has errors
+      # Note: Vercel's GitHub Integration usually handles the actual deployment 
+      # once we link the projects in the next sub-step.

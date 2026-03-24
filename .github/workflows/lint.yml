@@ -1,0 +1,48 @@
+name: CI (Lint and Build)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # These environment variables satisfy Zod and Prisma during the 'next build' step
+    # We use "dummy" values because the build only needs to see the correct format, 
+    # not connect to a real database.
+    env:
+      DATABASE_URL: "mongodb+srv://dummy:dummy@cluster.mongodb.net/db?retryWrites=true&w=majority"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      NODE_ENV: "production"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node_version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        # We must generate the client before building so the apps can see the types
+        run: npx prisma generate --schema=./packages/shared/prisma/schema.prisma
+
+      - name: Run Linter
+        run: npm run lint
+
+      - name: Build Shared Package
+        run: npm run build -w @lead-gen/shared
+
+      - name: Build Storefront
+        run: npm run build -w storefront
+
+      - name: Build Dashboard
+        run: npm run build -w dashboard

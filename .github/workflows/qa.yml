@@ -30,8 +30,11 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate --schema=./packages/shared/prisma/schema.prisma
 
-      - name: Lint
-        run: npm run lint
+      - name: Run Lint
+        # Using 'next lint' is more reliable for Next.js apps in CI
+        run: |
+          npm run lint -w storefront
+          npm run lint -w dashboard
 
       - name: Build Storefront (QA Check)
         run: npm run build -w storefront

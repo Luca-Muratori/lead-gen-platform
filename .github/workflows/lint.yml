@@ -35,8 +35,11 @@ jobs:
         # We must generate the client before building so the apps can see the types
         run: npx prisma generate --schema=./packages/shared/prisma/schema.prisma
 
-      - name: Run Linter
-        run: npm run lint
+      - name: Run Lint
+        # Using 'next lint' is more reliable for Next.js apps in CI
+        run: |
+          npm run lint -w storefront
+          npm run lint -w dashboard
 
       - name: Build Shared Package
         run: npm run build -w @lead-gen/shared

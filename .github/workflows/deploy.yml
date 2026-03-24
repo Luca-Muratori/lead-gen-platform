@@ -10,6 +10,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install dependencies
         run: npm install
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=./packages/database/schema.prisma 
+       
       - name: Type Check & Lint
         run: npm run lint # why: ensures code quality before production
       - name: Build

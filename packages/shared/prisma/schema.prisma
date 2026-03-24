@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
   // This tells Prisma to generate the JS/TS client
+  engineType    = "library"
 }
 
 datasource db {

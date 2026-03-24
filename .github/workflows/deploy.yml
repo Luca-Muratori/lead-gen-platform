@@ -1,19 +1,38 @@
-name: Production Deployment
+name: Production Build Check
+
 on:
   push:
-    branches: [main] # why: Production environment maps to the main branch
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  check-and-deploy:
+  production-check:
     runs-on: ubuntu-latest
+    env:
+      # Even for Prod check, we use dummy envs to verify the CODE compiles.
+      # Vercel handles the REAL secrets during the actual deployment.
+      DATABASE_URL: "mongodb+srv://dummy:dummy@cluster.mongodb.net/prod?retryWrites=true&w=majority"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      NODE_ENV: "production"
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
         run: npm install
+
       - name: Generate Prisma Client
-        run: npm run db:generate
-       
-      - name: Type Check & Lint
-        run: npm run lint # why: ensures code quality before production
-      - name: Build
-        run: npm run build
+        run: npx prisma generate --schema=./packages/shared/prisma/schema.prisma
+
+      - name: Production Build Storefront
+        run: npm run build -w storefront
+
+      - name: Production Build Dashboard
+        run: npm run build -w dashboard

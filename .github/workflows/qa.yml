@@ -1,18 +1,40 @@
-name: QA Deployment
+name: QA Environment Check
+
 on:
   push:
-    branches: [develop] 
+    branches: [develop]
+  pull_request:
+    branches: [develop]
 
 jobs:
-  deploy:
+  test-and-build:
     runs-on: ubuntu-latest
+    env:
+      # Use Dummy values for the build check
+      DATABASE_URL: "mongodb+srv://dummy:dummy@cluster.mongodb.net/qa?retryWrites=true&w=majority"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      NODE_ENV: "production"
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: npm install # why: installs all packages for the monorepo
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm install
+
       - name: Generate Prisma Client
-        run: npm run db:generate
-      - name: Run Build Check
-        run: npm run build # why: prevents deployment if code has errors
-      # Note: Vercel's GitHub Integration usually handles the actual deployment 
-      # once we link the projects in the next sub-step.
+        run: npx prisma generate --schema=./packages/shared/prisma/schema.prisma
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build Storefront (QA Check)
+        run: npm run build -w storefront
+
+      - name: Build Dashboard (QA Check)
+        run: npm run build -w dashboard

@@ -11,7 +11,7 @@ jobs:
       - name: Install dependencies
         run: npm install # why: installs all packages for the monorepo
       - name: Generate Prisma Client
-        run: npx prisma generate --schema=./packages/database/schema.prisma 
+        run: npm run db:generate
       - name: Run Build Check
         run: npm run build # why: prevents deployment if code has errors
       # Note: Vercel's GitHub Integration usually handles the actual deployment 

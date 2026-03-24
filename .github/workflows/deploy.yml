@@ -11,7 +11,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Generate Prisma Client
-        run: npx prisma generate --schema=./packages/database/schema.prisma 
+        run: npm run db:generate
        
       - name: Type Check & Lint
         run: npm run lint # why: ensures code quality before production

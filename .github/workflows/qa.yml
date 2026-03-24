@@ -27,6 +27,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Force Tailwind Install in Storefront
+        # This ensures the plugin is physically present where Turbopack looks
+        run: npm install @tailwindcss/postcss postcss autoprefixer -w storefront
+      
+      - name: Force Tailwind Install in Dashboard
+        # This ensures the plugin is physically present where Turbopack looks
+        run: npm install @tailwindcss/postcss postcss autoprefixer -w dashboard
+
       - name: Generate Prisma Client
         run: npx prisma generate --schema=./packages/shared/prisma/schema.prisma
 
